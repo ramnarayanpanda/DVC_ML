@@ -4,15 +4,92 @@ stages:
     cmd: python src/stage_01_load_save.py --config=config/config.yaml
     deps:
     - path: config/config.yaml
-      md5: 439b5152cdc76c479a3dbcdcbcdc73fc
-      size: 217
+      md5: 8a7bf6d5b7120fec0083e2deab834dd4
+      size: 481
     - path: src/stage_01_load_save.py
-      md5: 75345a3f9d4d93a2848e8dbbaefd30cb
-      size: 1034
+      md5: c43d09aeec3bcbecd65f5a89c283d174
+      size: 1036
     - path: src/utils/all_utils.py
-      md5: 9634461a24c5b826731c10f548ae9f11
-      size: 361
+      md5: 276e4879b356683dbfbf9d1593d86775
+      size: 708
     outs:
     - path: artifacts/raw_local_dir/data.csv
       md5: b56c9a78a7fcad87a58fc586bf5298bc
       size: 292287
+  split_data:
+    cmd: python src/stage_02_split_data.py --config=config/config.yaml --param=params.yaml
+    deps:
+    - path: artifacts/raw_local_dir/data.csv
+      md5: b56c9a78a7fcad87a58fc586bf5298bc
+      size: 292287
+    - path: config/config.yaml
+      md5: 8a7bf6d5b7120fec0083e2deab834dd4
+      size: 481
+    - path: src/stage_02_split_data.py
+      md5: df6298acb3f02d3c36515f19008e553d
+      size: 1700
+    - path: src/utils/all_utils.py
+      md5: 276e4879b356683dbfbf9d1593d86775
+      size: 708
+    params:
+      params.yaml:
+        base.random_state: 42
+        base.test_size: 0.3
+    outs:
+    - path: artifacts/split_data_dir/test.csv
+      md5: 45da20d54824a33596c69e1c3f1c1949
+      size: 87809
+    - path: artifacts/split_data_dir/train.csv
+      md5: de63675b63e39d1fb8c67c1e1bb80925
+      size: 204625
+  train:
+    cmd: python src/stage_03_train.py --config=config/config.yaml --param=params.yaml
+      --model_name=RandomForestRegressor
+    deps:
+    - path: artifacts/split_data_dir/train.csv
+      md5: de63675b63e39d1fb8c67c1e1bb80925
+      size: 204625
+    - path: config/config.yaml
+      md5: 8a7bf6d5b7120fec0083e2deab834dd4
+      size: 481
+    - path: src/stage_02_split_data.py
+      md5: df6298acb3f02d3c36515f19008e553d
+      size: 1700
+    - path: src/stage_03_train.py
+      md5: 54c38a2579adbaa9b3df9392462b0d7d
+      size: 1990
+    - path: src/utils/all_utils.py
+      md5: 276e4879b356683dbfbf9d1593d86775
+      size: 708
+    params:
+      params.yaml:
+        base.random_state: 42
+        model_params.ElasticNet.param:
+          alpha: 0.5
+          l1_ratio: 0.8
+        model_params.RandomForestRegressor.param:
+          n_estimators: 100
+          max_depth: 10
+  evaluate:
+    cmd: python src/stage_04_evaluate.py --config=config/config.yaml --param=params.yaml
+      --model_name=RandomForestRegressor
+    deps:
+    - path: artifacts/model_dir/ElasticNet.model
+      md5: 1770ce7748f984bfd91dec2a08147ef4
+      size: 3304446
+    - path: artifacts/split_data_dir/test.csv
+      md5: 45da20d54824a33596c69e1c3f1c1949
+      size: 87809
+    - path: config/config.yaml
+      md5: 8a7bf6d5b7120fec0083e2deab834dd4
+      size: 481
+    - path: src/stage_04_evaluate.py
+      md5: 0879b0cfb39bf567394fb44c169ce7da
+      size: 2097
+    - path: src/utils/all_utils.py
+      md5: 276e4879b356683dbfbf9d1593d86775
+      size: 708
+    outs:
+    - path: artifacts/reports_dir/scores.json
+      md5: 52f3bf233cca97613dd6e4f84ac6da13
+      size: 67

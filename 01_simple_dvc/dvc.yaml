@@ -1,0 +1,21 @@
+stages: 
+  stage_01: 
+    cmd: python stage_01.py 
+    deps: 
+      - stage_01.py   # why we are calling the same file stage_01.py as dependency is that when anything change in the stage_01.py we should be able to track that change
+    outs: 
+      - artifacts01.txt  
+
+  stage_02:
+    cmd: python stage_02.py 
+    deps: 
+      - artifacts01.txt  # here dependencies are artifacts.txt, stage_02.py file itself 
+      - stage_02.py 
+
+  stage_03:
+    cmd: python stage_03.py 
+    deps: 
+      - artifacts01.txt 
+      - stage_03.py 
+    outs: 
+      - artifacts02.txt 

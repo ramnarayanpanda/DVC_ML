@@ -1,0 +1,16 @@
+base: 
+  random_state: 42 
+  test_size: 0.3  
+
+
+model_params:
+  ElasticNet: 
+    param: 
+      alpha: 0.5 
+      l1_ratio: 0.8 
+  RandomForestRegressor: 
+    param: 
+      n_estimators: 100 
+      max_depth: 10
+
+      
